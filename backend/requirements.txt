@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+python-multipart
+ollama
+pydantic
+python-dotenv
+Pillow
+cognee[gliner]

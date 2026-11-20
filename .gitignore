@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+node_modules/
+dist/
+backend/fixit.db
+backend/uploads/
+backend/.cognee_system/
+backend/.cognee_data/
+guild/node_modules/
