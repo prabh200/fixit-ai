@@ -1,6 +1,6 @@
 # FixIt AI — $0 local-first household repair agent
 
-## What works in this MVP
+## What this Product Does.
 - Household repair categories: appliances, plumbing, electrical, HVAC, roofing, carpentry, pest control, general maintenance.
 - Optional photo + symptom description sent to a local Ollama vision model.
 - Structured repair triage.
