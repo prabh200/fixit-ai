@@ -107,6 +107,56 @@ export default function App() {
     } catch { setMemory({warning:'Memory service unavailable'}); }
   }
 
+  function renderMemoryResults() {
+    if (!memory) return null;
+
+    const raw = String(memory.semantic_recall || '');
+    const jsonMatches = raw.match(/\{"created_at":.*?\}\}(?=(?:\\n---\\n|\s*'|"))/g) || [];
+    const parsed = jsonMatches.map(s => {
+      try {
+        return JSON.parse(s.replace(/\\"/g, '"').replace(/\\\\/g, '\\'));
+      } catch {
+        return null;
+      }
+    }).filter(Boolean);
+
+    if (parsed.length > 0) {
+      return (
+        <div style={{ display: 'grid', gap: '10px', marginTop: '14px' }}>
+          <small style={{ opacity: 0.75, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Retrieved from {memory.provider || 'Cognee'} Graph ({parsed.length} {parsed.length === 1 ? 'record' : 'records'})
+          </small>
+          {parsed.map((item, i) => (
+            <div
+              key={i}
+              style={{
+                padding: '12px 14px',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.1)'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <strong>{item.appliance_or_area} · <span style={{ textTransform: 'capitalize', opacity: 0.8 }}>{item.category}</span></strong>
+                <small style={{ opacity: 0.7 }}>{item.created_at?.slice(0, 10)}</small>
+              </div>
+              <p style={{ margin: '4px 0', fontSize: '13px', opacity: 0.9 }}>
+                {item.diagnosis?.problem_summary || item.problem_summary}
+              </p>
+              {item.diagnosis?.immediate_action && (
+                <small style={{ color: '#34d399', display: 'block', marginTop: '4px' }}>
+                  Recommended action: {item.diagnosis.immediate_action}
+                </small>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    return <pre className="memory-output">{JSON.stringify(memory, null, 2)}</pre>;
+  }
+
   const d = result?.diagnosis;
   const hasAnyFollowUpAnswer = Object.values(followUpAnswers).some(val => val && val.trim().length > 0);
 
@@ -329,7 +379,7 @@ export default function App() {
         <input value={memoryQuery} onChange={e=>setMemoryQuery(e.target.value)} placeholder="e.g. washing machine or previous leak" required/>
         <button className="secondary">Recall</button>
       </form>
-      {memory && <pre className="memory-output">{JSON.stringify(memory,null,2)}</pre>}
+      {renderMemoryResults()}
     </section>
     <footer>FixIt AI · Local-first prototype · No paid API calls · Always prioritize safety</footer>
   </main>;
